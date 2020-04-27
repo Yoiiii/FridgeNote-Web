@@ -26,8 +26,11 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ###安装的插件
 npm i vant -S
+```
 npm i babel-plugin-import -D
+```
 vue add router
+```
 
 
 ###项目进程
