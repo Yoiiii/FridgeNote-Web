@@ -62,7 +62,6 @@ import "vant/lib/sku/style";
 import "vant/lib/sidebar/style";
 import "vant/lib/sidebar-item/style";
 
-
 import Vue from "vue";
 import goods from "../components/Goods";
 import addgoods from "../components/AddGoods";
@@ -171,18 +170,22 @@ export default {
     onChange(picker, value, index) {
       Toast(`当前值：${value}, 当前索引：${index}`);
     },
-    submit(goods){
+    submit(goods) {
       console.log(goods);
       this.addGoods = false;
-      Toast.success('添加成功');
+      this.$http.post("goods/", this.goods);
+      Toast.success("添加成功");
     },
-    numChange(value,id){
-      console.log(value,id);
-
+    numChange(value, id) {
+      console.log(value, id);
+    },
+    async fetch() {
+      const res = await this.$http.get("goods/");
+      console.log(res.data);
     }
   },
   created() {
-    console.log(this.fridgeList.name);
+    this.fetch()
   }
 };
 </script>
