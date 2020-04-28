@@ -31,6 +31,7 @@ npm i babel-plugin-import -D
 ```
 vue add router
 ```
-
+npm i -D sass sass-loader
+```
 
 ###项目进程
