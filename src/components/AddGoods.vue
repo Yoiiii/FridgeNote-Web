@@ -4,7 +4,7 @@
       <div style="margin: 16px;">
         <div class="fs-xl text-center">添加物品</div>
         <van-field
-          v-model="newGoods.name"
+          v-model="model.name"
           name="物品名"
           label="物品名"
           placeholder="物品名"
@@ -12,12 +12,12 @@
         />
         <van-field name="uploader" label="相片">
           <template #input>
-            <van-uploader v-model="uploader" />
+            <van-uploader v-model="uploader" :after-read="afterRead" />
           </template>
         </van-field>
         <van-field name="radio" label="类型">
           <template #input>
-            <van-radio-group v-model="newGoods.type" direction="horizontal">
+            <van-radio-group v-model="model.type" direction="horizontal">
               <van-radio name="1">冷冻</van-radio>
               <van-radio name="2">冷藏</van-radio>
             </van-radio-group>
@@ -25,21 +25,21 @@
         </van-field>
         <van-field name="stepper" label="数量">
           <template #input>
-            <van-stepper v-model="newGoods.count" />
+            <van-stepper v-model="model.count" />
           </template>
         </van-field>
         <van-field
           readonly
           clickable
           name="datetimePicker"
-          :value="newGoods.outDate"
+          :value="model.outDate"
           label="保质期"
           placeholder="点击选择保质期"
           @click="showTimePicker = true"
         />
         <van-popup get-container="AddGoods" v-model="showTimePicker" position="bottom">
           <van-datetime-picker
-            :v-model="newGoods.outDate"
+            :v-model="model.outDate"
             type="date"
             @confirm="onConfirm"
             @cancel="showPicker = false"
@@ -87,14 +87,15 @@ export default {
   },
   data() {
     return {
-      newGoods: {
+      model: {
         name: "",
         count: 1,
         inData: "",
         exp: 0,
         outDate: "",
         image: "",
-        type: 1
+        type: 1,
+        owner: ""
       },
       showTimePicker: false,
       value: "",
@@ -103,12 +104,18 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.log(this.newGoods);
-      this.$emit('submit',this.newGoods)
+      this.model.owner = this.id;
+      this.$emit("submit", this.model);
     },
-    onConfirm(time){
-      this.newGoods.outDate = this.formatTime(time,'yyyy-MM-dd');
+    onConfirm(time) {
+      this.model.outDate = this.formatTime(time, "yyyy-MM-dd");
       this.showTimePicker = false;
+    },
+    async afterRead(file) {
+      const formData = new FormData(); // 声明一个FormData对象
+      formData.append("file", file.file);
+      const res = await this.$http.post("upload", formData);
+      this.model.image=res.data.url
     },
     formatTime: function(date1, fmt) {
       let date = new Date(date1);

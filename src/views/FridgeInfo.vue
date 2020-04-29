@@ -34,13 +34,13 @@
         <van-picker :columns="fridgeList" @change="onChange" />
       </van-popup>
       <van-popup v-model="addGoods" closeable position="bottom" :style="{ height: '70%' }">
-        <addgoods @submit="submit"></addgoods>
+        <addgoods @submit="submit" :id="fridge.id"></addgoods>
       </van-popup>
     </div>
     <van-empty
       v-else
       class="custom-image"
-      image="https://img.yzcdn.cn/vant/custom-empty-image.png"
+      image="https://shawyoi.cn/uploads/custom-empty-image.png"
       description="暂无冰箱"
     />
   </div>
@@ -106,6 +106,8 @@ export default {
   data() {
     return {
       active: 0,
+      userid: "",
+      userName: "",
       loading: false,
       finished: false,
       pickerfridge: false,
@@ -113,41 +115,13 @@ export default {
       sidebarKey: 0,
       addGoods: false,
       showTimePicker: false,
-      fridgeList: ["我的冰箱", "你的冰箱"],
+      fridgeList: [],
+      fridgeId: [],
       fridge: {
-        id: "1111",
-        name: "我的冰箱",
-        cold: [
-          {
-            id: "12312",
-            name: "香蕉",
-            count: 1,
-            inData: "2020-4-27",
-            exp: 7,
-            outDate: "2020-5-4",
-            image: "https://img.yzcdn.cn/vant/ipad.jpeg"
-          },
-          {
-            id: "123122",
-            name: "苹果",
-            count: 1,
-            inData: "2020-4-27",
-            exp: 7,
-            outDate: "2020-5-4",
-            image: "https://img.yzcdn.cn/vant/ipad.jpeg"
-          }
-        ],
-        freeze: [
-          {
-            id: "12312",
-            name: "雪糕",
-            count: 1,
-            inData: "2020-4-27",
-            exp: 365,
-            outDate: "2021-4-27",
-            image: "https://img.yzcdn.cn/vant/ipad.jpeg"
-          }
-        ]
+        id: "",
+        name: "",
+        cold: [],
+        freeze: []
       }
     };
   },
@@ -168,24 +142,62 @@ export default {
       this.finished = true;
     },
     onChange(picker, value, index) {
-      Toast(`当前值：${value}, 当前索引：${index}`);
+      this.fridge.id = this.fridgeId[index];
+      this.fridge.name = this.fridgeList[index];
     },
     submit(goods) {
-      console.log(goods);
+      console.log('goods',goods);
       this.addGoods = false;
-      this.$http.post("goods/", this.goods);
+      this.$http.post("rest/goods/", goods);
       Toast.success("添加成功");
     },
     numChange(value, id) {
       console.log(value, id);
     },
     async fetch() {
-      const res = await this.$http.get("goods/");
+      await this.getfridgeList(this.userid);
+      await this.getGoodsList(this.fridge.id);
+    },
+    getUserInfo() {
+      const jwt = require("jsonwebtoken");
+      if (localStorage.token) {
+        const userInfo = jwt.decode(localStorage.token);
+        this.userName = userInfo.username;
+        this.userid = userInfo.id;
+      } else {
+        this.$router.push("/login");
+      }
+    },
+    async getfridgeList(id) {
+      const res = await this.$http.post("getfridgelist/", { id: id });
+      this.fridgeList = [];
+      this.fridgeId = [];
+      this.fridge.id = res.data[0]._id;
+      for (let item of res.data) {
+        this.fridgeList.push(item.name);
+        this.fridgeId.push(item._id);
+      }
+    },
+    async getGoodsList(id) {
+      const res = await this.$http.post("getgoodslist/", {
+        id: id
+      });
       console.log(res.data);
+      let cold =res.data.filter(n=>{
+        return n.type==1
+      })
+      console.log('clod',cold);
+      let freeze=res.data.filter(n=>{
+        return n.type==2
+      })
+      console.log('freeze',freeze);
+      this.fridge.cold=cold
+      this.fridge.freeze=freeze
     }
   },
   created() {
-    this.fetch()
+    this.getUserInfo();
+    this.fetch();
   }
 };
 </script>

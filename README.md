@@ -33,5 +33,9 @@ vue add router
 ```
 npm i -D sass sass-loader
 ```
+npm i axios
+```
+npm install --save jsonwebtoken
+```
 
 ###项目进程

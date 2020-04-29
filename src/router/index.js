@@ -1,19 +1,30 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import FridgeInfo from '../views/FridgeInfo.vue'
-import GoodsList from '../views/GoodsList.vue'
+import Personal from '../views/Personal.vue'
+import Login from '../views/Login.vue'
+import Main from '../views/Main.vue'
+import Register from '../views/Register.vue';
 Vue.use(VueRouter)
 
   const routes = [
+    {
+      path: '/',
+      component: Main,
+      children:[
+        {path:'/',name:'FridgeInfo',component:FridgeInfo},
+        {path:'/personal',name:'Personal',component:Personal},
+      ]
+    },
   {
-    path: '/',
-    name: 'FridgeInfo',
-    component: FridgeInfo
+    path: '/login',
+    name: 'Login',
+    component:Login
   },
   {
-    path: '/goodslist',
-    name: 'GoodsList',
-    component:GoodsList
+    path: '/register',
+    name: 'Register',
+    component:Register
   }
 ]
 

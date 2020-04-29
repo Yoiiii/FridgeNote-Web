@@ -1,16 +1,31 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import axios from 'axios'
+import http from './http'
 
 import './assets/scss/style.scss'
 
-Vue.config.productionTip = false
+import { Notify } from 'vant';
 
-Vue.prototype.$http=axios.create({
-  //baseURL:process.env.VUE_APP_API_URL || '/web/api',//生产环境用
-  baseURL: 'http://localhost:3000/fridge/api',//开发环境用
+Vue.use(Notify);
+Vue.config.productionTip = false
+Vue.prototype.$http=http
+
+Vue.mixin({
+  computed: {
+    mixinUploadUrl(){
+      return this.$http.defaults.baseURL +'/upload'
+    }
+  },
+  methods: {
+    mixinGetAuthHeaders(){
+      return{
+        Authorization:`Bearer ${localStorage.token || ''}`
+      }
+    }
+  },
 })
+
 new Vue({
   router,
   render: h => h(App)
