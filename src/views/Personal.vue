@@ -4,7 +4,7 @@
       <van-nav-bar title="个人"></van-nav-bar>
     </van-sticky>
     <van-cell-group>
-      <van-cell title="注销" @click="logout"/>
+      <van-cell title="注销" @click="logout" />
       <van-cell title="新建冰箱" @click="addfridge = true" />
       <van-cell title="删除冰箱" @click="deletefridge" />
       <van-cell title="关于" />
@@ -65,16 +65,18 @@ export default {
           type: "success",
           message: "添加成功"
         });
-        this.addfridge=false
+        this.addfridge = false;
       }
     },
-    logout(){
+    logout() {
       localStorage.clear();
       this.$router.push("/login");
+      this.$notify({
+        type: "success",
+        message: "注销成功"
+      });
     },
-    deletefridge(){
-
-    }
+    deletefridge() {}
   },
   created() {
     const jwt = require("jsonwebtoken");

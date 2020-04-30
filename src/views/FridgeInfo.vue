@@ -33,7 +33,13 @@
         <van-tab title="冷冻">
           <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
             <van-cell-group>
-              <goods v-for="good in fridge.freeze" :key="good.id" :good="good"></goods>
+              <goods
+                v-for="good in fridge.freeze"
+                :key="good.id"
+                :good="good"
+                @numChange="numChange"
+                @delectGoods="delectGoods"
+              ></goods>
             </van-cell-group>
           </van-list>
         </van-tab>
@@ -45,12 +51,17 @@
         <addgoods @submit="submit" :id="fridge.id"></addgoods>
       </van-popup>
     </div>
-    <van-empty
-      v-else
-      class="custom-image"
-      image="https://shawyoi.cn/uploads/custom-empty-image.png"
-      description="暂无冰箱,请新建冰箱"
-    />
+    <div v-else class="d-flex flex-column">
+      <van-empty
+        class="custom-image"
+        image="https://shawyoi.cn/uploads/custom-empty-image.png"
+        description="暂无冰箱,请新建冰箱"
+      />
+      <van-button normal round plain type="info" native-type="submit" @click="addfridge=true">新建冰箱</van-button>
+    </div>
+    <van-popup v-model="addfridge" closeable position="bottom" :style="{ height: '30%' }">
+      <AddFridge :userid="userid" @submit="addFridge"></AddFridge>
+    </van-popup>
   </div>
 </template>
 
@@ -74,6 +85,7 @@ import "vant/lib/dialog/style";
 import Vue from "vue";
 import goods from "../components/Goods";
 import addgoods from "../components/AddGoods";
+import AddFridge from "../components/AddFridge";
 import {
   Empty,
   Tab,
@@ -136,12 +148,14 @@ export default {
         freeze: []
       },
       haveFridge: false,
-      isLoading: false
+      isLoading: false,
+      addfridge: false
     };
   },
   components: {
     goods,
-    addgoods
+    addgoods,
+    AddFridge
   },
   methods: {
     async onRefresh() {
@@ -236,6 +250,17 @@ export default {
         .catch(() => {
           // on cancel
         });
+    },
+    async addFridge(newFridge) {
+      const res = await this.$http.post("rest/fridge", newFridge);
+      if (res.data._id) {
+        this.$notify({
+          type: "success",
+          message: "添加成功"
+        });
+        this.addfridge = false;
+        this.fetch();
+      }
     }
   },
   async created() {

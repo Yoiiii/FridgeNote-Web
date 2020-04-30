@@ -18,8 +18,8 @@
         <van-field name="radio" label="类型">
           <template #input>
             <van-radio-group v-model="model.type" direction="horizontal">
-              <van-radio name="1">冷冻</van-radio>
-              <van-radio name="2">冷藏</van-radio>
+              <van-radio name="1">冷藏</van-radio>
+              <van-radio name="2">冷冻</van-radio>
             </van-radio-group>
           </template>
         </van-field>
@@ -32,11 +32,10 @@
           readonly
           clickable
           name="datetimePicker"
-          :value="model.outDate"
+          :value="outDate"
           label="保质期"
           placeholder="点击选择保质期"
           @click="showTimePicker = true"
-          
         />
         <van-popup get-container="AddGoods" v-model="showTimePicker" position="bottom">
           <van-datetime-picker
@@ -92,38 +91,45 @@ export default {
       model: {
         name: "",
         count: 1,
-        inData: "",
+        inDate: "",
         exp: 0,
         outDate: "",
         image: "",
         type: 1,
         owner: ""
       },
-      minDate:'',
+      minDate: "",
       showTimePicker: false,
       value: "",
-      uploader: []
+      uploader: [],
+      outDate: ""
     };
   },
-  computed:{
-     exp(){
-      return Math.floor(this.model.outData-this.model.inData/(24*3600*1000))
-     }
-  },
+  // computed:{
+  //    exp(){
+  //     return Math.floor(this.model.outData-this.model.inData/(24*3600*1000))
+  //    }
+  // },
   methods: {
     onSubmit() {
       this.model.owner = this.id;
+      this.model.exp = Math.floor(
+        (this.model.outDate - this.model.inDate) / (24 * 3600 * 1000)
+      );
       this.$emit("submit", this.model);
     },
     onConfirm(time) {
-      this.model.outDate = this.formatTime(time, "yyyy-MM-dd");
+      this.outDate = this.formatTime(time, "yyyy-MM-dd");
+      this.model.outDate = time;
+      console.log(this.model.outDate);
+
       this.showTimePicker = false;
     },
     async afterRead(file) {
       const formData = new FormData(); // 声明一个FormData对象
       formData.append("file", file.file);
       const res = await this.$http.post("upload", formData);
-      this.model.image=res.data.url
+      this.model.image = res.data.url;
     },
     formatTime: function(date1, fmt) {
       let date = new Date(date1);
@@ -152,11 +158,9 @@ export default {
       return fmt;
     }
   },
-  created(){
-    this.model.inData  = new Date()
-    this.model.exp=this.exp
-    this.minDate=new Date()
-    console.log(this.minDate);
+  created() {
+    this.model.inDate = new Date();
+    this.minDate = new Date();
   }
 };
 </script>
