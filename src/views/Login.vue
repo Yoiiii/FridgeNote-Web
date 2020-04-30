@@ -19,6 +19,9 @@
         />
         <div style="margin: 16px;">
           <van-button round block type="info" native-type="submit">登录</van-button>
+          <div class="d-flex jc-center p-4">
+            <router-link to="/register">注册</router-link>
+          </div>
         </div>
       </van-form>
     </div>
@@ -34,10 +37,10 @@ export default {
   name: "GoodsList",
   data() {
     return {
-      model:{
-        username:'',
-        password:'',
-      },
+      model: {
+        username: "",
+        password: ""
+      }
     };
   },
   methods: {

@@ -58,11 +58,10 @@ export default {
         //sessionStorage.token=res.data.token//仅一次，关闭浏览器即消除
         this.$router.push("/login");
         if (res.data) {
-          this.$notify("注册成功");
-          // this.$message({
-          //   type: "success",
-          //   message: "注册成功"
-          // });
+          this.$notify({
+            type: "success",
+            message: "注册成功"
+          });
         }
       }
     }

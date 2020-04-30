@@ -1,16 +1,12 @@
 <template>
   <div id="Main">
     <router-view />
-    <van-tabbar v-model="active">
-      <van-tabbar-item icon="orders-o">
-        <router-link tag="div" to="/">冰箱</router-link>
-      </van-tabbar-item>
+    <van-tabbar v-model="active" @change="onChange">
+        <van-tabbar-item  icon="orders-o">冰箱</van-tabbar-item>
       <!-- <van-tabbar-item icon="cart-o">
         <router-link to="/goodslist">物品</router-link>
       </van-tabbar-item>-->
-      <van-tabbar-item icon="user-o">
-        <router-link tag="div" to="/personal">个人</router-link>
-      </van-tabbar-item>
+        <van-tabbar-item  icon="user-o">个人</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -36,9 +32,26 @@ export default {
   name: "Main",
   data() {
     return {
-      active: 0,
+      active:0
     };
   },
+  methods: {
+    onChange() {
+      if (this.active == 0) {
+        this.$router.push("/");
+      } else if (this.active == 1) {
+        this.$router.push("/personal");
+      }
+    }
+  },
+  created(){
+    if(this.$route.path==='/'){
+      this.active=0
+    }else {
+      this.active=1
+    }
+
+  }
 };
 </script>
 <style>

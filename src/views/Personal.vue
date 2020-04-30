@@ -4,8 +4,9 @@
       <van-nav-bar title="个人"></van-nav-bar>
     </van-sticky>
     <van-cell-group>
-      <van-cell title="关于" />
+      <van-cell title="注销" @click="logout"/>
       <van-cell title="新建冰箱" @click="addfridge = true" />
+      <van-cell title="删除冰箱" @click="deletefridge" />
       <van-cell title="关于" />
     </van-cell-group>
     <van-popup v-model="addfridge" closeable position="bottom" :style="{ height: '30%' }">
@@ -58,13 +59,21 @@ export default {
   },
   methods: {
     async addFridge(newFridge) {
-      console.log(newFridge);
-      const res = await this.$http.post("fridge", newFridge);
-      console.log(res.data);
-      this.$notify({
-        type: "success",
-        message: "添加成功"
-      });
+      const res = await this.$http.post("rest/fridge", newFridge);
+      if (res.data._id) {
+        this.$notify({
+          type: "success",
+          message: "添加成功"
+        });
+        this.addfridge=false
+      }
+    },
+    logout(){
+      localStorage.clear();
+      this.$router.push("/login");
+    },
+    deletefridge(){
+
     }
   },
   created() {

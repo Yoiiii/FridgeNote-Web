@@ -10,6 +10,7 @@ import { Notify } from 'vant';
 Vue.use(Notify);
 Vue.config.productionTip = false
 Vue.prototype.$http=http
+Vue.prototype.$Notify=Notify
 
 Vue.mixin({
   computed: {

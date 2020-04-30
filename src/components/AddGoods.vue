@@ -36,13 +36,15 @@
           label="保质期"
           placeholder="点击选择保质期"
           @click="showTimePicker = true"
+          
         />
         <van-popup get-container="AddGoods" v-model="showTimePicker" position="bottom">
           <van-datetime-picker
             :v-model="model.outDate"
             type="date"
             @confirm="onConfirm"
-            @cancel="showPicker = false"
+            @cancel="showTimePicker = false"
+            :min-date="minDate"
           />
         </van-popup>
         <div style="margin: 16px;">
@@ -97,10 +99,16 @@ export default {
         type: 1,
         owner: ""
       },
+      minDate:'',
       showTimePicker: false,
       value: "",
       uploader: []
     };
+  },
+  computed:{
+     exp(){
+      return Math.floor(this.model.outData-this.model.inData/(24*3600*1000))
+     }
   },
   methods: {
     onSubmit() {
@@ -143,6 +151,12 @@ export default {
       }
       return fmt;
     }
+  },
+  created(){
+    this.model.inData  = new Date()
+    this.model.exp=this.exp
+    this.minDate=new Date()
+    console.log(this.minDate);
   }
 };
 </script>

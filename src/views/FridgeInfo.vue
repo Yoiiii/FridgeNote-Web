@@ -15,12 +15,20 @@
         </template>
       </van-nav-bar>
     </van-sticky>
-    <div v-if="fridge" class="bg-back">
+    <div v-if="haveFridge" class="bg-back">
       <van-tabs v-model="active" color="#1989fa" sticky animated>
         <van-tab title="冷藏">
-          <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
-            <goods v-for="good in fridge.cold" :key="good.id" :good="good" @numChange="numChange"></goods>
-          </van-list>
+          <van-pull-refresh v-model="isLoading" @refresh="onRefresh">
+            <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+              <goods
+                v-for="good in fridge.cold"
+                :key="good.id"
+                :good="good"
+                @numChange="numChange"
+                @delectGoods="delectGoods"
+              ></goods>
+            </van-list>
+          </van-pull-refresh>
         </van-tab>
         <van-tab title="冷冻">
           <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
@@ -41,7 +49,7 @@
       v-else
       class="custom-image"
       image="https://shawyoi.cn/uploads/custom-empty-image.png"
-      description="暂无冰箱"
+      description="暂无冰箱,请新建冰箱"
     />
   </div>
 </template>
@@ -61,6 +69,7 @@ import "vant/lib/sticky/style";
 import "vant/lib/sku/style";
 import "vant/lib/sidebar/style";
 import "vant/lib/sidebar-item/style";
+import "vant/lib/dialog/style";
 
 import Vue from "vue";
 import goods from "../components/Goods";
@@ -81,9 +90,12 @@ import {
   Sticky,
   Sku,
   Sidebar,
-  SidebarItem
+  SidebarItem,
+  Dialog,
+  PullRefresh
 } from "vant";
 
+Vue.use(PullRefresh);
 Vue.use(Empty);
 Vue.use(Tab);
 Vue.use(Tabs);
@@ -122,7 +134,9 @@ export default {
         name: "",
         cold: [],
         freeze: []
-      }
+      },
+      haveFridge: false,
+      isLoading: false
     };
   },
   components: {
@@ -130,13 +144,15 @@ export default {
     addgoods
   },
   methods: {
+    async onRefresh() {
+      await this.getGoodsList(this.fridge.id);
+      this.isLoading = false;
+    },
     onClickLeft() {
       this.pickerfridge = true;
-      console.log("onClickLeft");
     },
     onClickRight() {
       this.addGoods = true;
-      console.log("onClickRight");
     },
     onLoad() {
       this.finished = true;
@@ -144,19 +160,23 @@ export default {
     onChange(picker, value, index) {
       this.fridge.id = this.fridgeId[index];
       this.fridge.name = this.fridgeList[index];
+      this.getGoodsList(this.fridge.id);
+      this.pickerfridge = false;
     },
     submit(goods) {
-      console.log('goods',goods);
       this.addGoods = false;
       this.$http.post("rest/goods/", goods);
       Toast.success("添加成功");
+      this.fetch();
     },
-    numChange(value, id) {
-      console.log(value, id);
+    numChange(value, model) {
+      this.$http.put(`rest/goods/${model._id}`, model);
     },
     async fetch() {
       await this.getfridgeList(this.userid);
-      await this.getGoodsList(this.fridge.id);
+      if (this.fridge.id) {
+        await this.getGoodsList(this.fridge.id);
+      }
     },
     getUserInfo() {
       const jwt = require("jsonwebtoken");
@@ -170,33 +190,56 @@ export default {
     },
     async getfridgeList(id) {
       const res = await this.$http.post("getfridgelist/", { id: id });
-      this.fridgeList = [];
-      this.fridgeId = [];
-      this.fridge.id = res.data[0]._id;
-      for (let item of res.data) {
-        this.fridgeList.push(item.name);
-        this.fridgeId.push(item._id);
+      if (res.data[0] == null) {
+        this.haveFridge = false;
+      } else {
+        this.haveFridge = true;
+        this.fridgeList = [];
+        this.fridgeId = [];
+        this.fridge.id = res.data[0]._id;
+        this.fridge.name = res.data[0].name;
+        for (let item of res.data) {
+          this.fridgeList.push(item.name);
+          this.fridgeId.push(item._id);
+        }
       }
     },
     async getGoodsList(id) {
       const res = await this.$http.post("getgoodslist/", {
         id: id
       });
-      console.log(res.data);
-      let cold =res.data.filter(n=>{
-        return n.type==1
+      let cold = res.data.filter(n => {
+        return n.type == 1;
+      });
+      let freeze = res.data.filter(n => {
+        return n.type == 2;
+      });
+      this.fridge.cold = cold;
+      this.fridge.freeze = freeze;
+    },
+    delectGoods(id) {
+      Dialog.confirm({
+        title: "删除",
+        message: "是否确认删除该物品"
       })
-      console.log('clod',cold);
-      let freeze=res.data.filter(n=>{
-        return n.type==2
-      })
-      console.log('freeze',freeze);
-      this.fridge.cold=cold
-      this.fridge.freeze=freeze
+        .then(async () => {
+          // on confirm
+          const res = await this.$http.delete(`rest/goods/${id}`);
+          if (res.data) {
+            this.$notify({
+              type: "success",
+              message: "删除成功"
+            });
+            this.fetch();
+          }
+        })
+        .catch(() => {
+          // on cancel
+        });
     }
   },
-  created() {
-    this.getUserInfo();
+  async created() {
+    await this.getUserInfo();
     this.fetch();
   }
 };

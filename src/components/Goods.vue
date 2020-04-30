@@ -1,6 +1,6 @@
 <template>
   <div class="good">
-    <van-swipe-cell>
+    <van-swipe-cell >
       <div class="d-flex flex-row jc-between bg-white p-2 mt-1">
         <van-image width="8rem" height="8rem" fit="cover" :src="good.image" class="img">
           <template v-slot:loading>
@@ -22,7 +22,7 @@
         </div>
       </div>
       <template #right>
-        <van-button square text="刪除" type="danger" class="delete-button" />
+        <van-button square text="刪除" type="danger" @click="del" class="delete-button" />
       </template>
     </van-swipe-cell>
   </div>
@@ -52,7 +52,10 @@ export default {
   },
   data() {
     return {
-      centered: true
+      centered: true,
+      model:{
+
+      }
     };
   },
   computed: {
@@ -62,10 +65,15 @@ export default {
   },
   methods: {
     numchange(value) {
-      this.$emit("numChange", value, this.good.id);
+      this.model.count=value
+      this.$emit("numChange",value,this.model);
+    },
+    del(){
+      this.$emit('delectGoods',this.good._id)
     }
   },
   created() {
+    this.model=this.good
   }
 };
 </script>
