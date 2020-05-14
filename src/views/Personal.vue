@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     async addFridge(newFridge) {
-      const res = await this.$http.post("rest/fridge", newFridge);
+      const res = await this.$http.post("addfridge/", newFridge);
       if (res.data._id) {
         this.$notify({
           type: "success",

@@ -10,7 +10,7 @@
           placeholder="冰箱名"
           :rules="[{ required: true, message: '请填写冰箱名' }]"
         />
-        <van-field name="checkboxGroup" label="冰箱结构">
+        <!-- <van-field name="checkboxGroup" label="冰箱结构">
           <template #input>
             <van-checkbox-group v-model="model.fridgeFormation" direction="horizontal">
               <van-checkbox name="1" shape="square">冷藏</van-checkbox>
@@ -23,7 +23,7 @@
           <template #input>
             <van-stepper v-model="stepper" />
           </template>
-        </van-field>
+        </van-field> -->
         <div style="margin: 16px;">
           <van-button round block type="info" native-type="submit">添加</van-button>
         </div>

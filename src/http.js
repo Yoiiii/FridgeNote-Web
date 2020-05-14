@@ -3,8 +3,8 @@ import Vue from 'vue'
 import router from './router'
 // import { Notify } from 'vant';
 const http = axios.create({
-    //baseURL:process.env.VUE_APP_API_URL || '/fridge/api',
-    baseURL: 'http://localhost:3000/fridge/api'
+    baseURL:process.env.VUE_APP_API_URL || '/fridge/api',
+    //baseURL: 'http://localhost:3000/fridge/api'
     //baseURL:'https://shawyoi.cn/fridge/api',
 })
 
