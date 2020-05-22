@@ -2,7 +2,7 @@
   <div class="home">
     <van-sticky>
       <van-nav-bar
-        :title="fridge.name"
+        :title="$store.state.selectFridge.name"
         left-arrow
         @click-left="onClickLeft"
         @click-right="onClickRight"
@@ -140,7 +140,6 @@ export default {
       addGoods: false,
       showTimePicker: false,
       fridgeList: [],
-      fridgeId: [],
       fridge: {
         id: "",
         name: "",
@@ -172,9 +171,10 @@ export default {
       this.finished = true;
     },
     onChange(picker, value, index) {
-      this.fridge.id = this.fridgeId[index];
-      this.fridge.name = this.fridgeList[index];
-      this.getGoodsList(this.fridge.id);
+      this.$store.commit('changeFridge',index)
+      //this.fridge.id =this.$store.state.selectFridge._id// this.fridgeId[index];
+      //this.fridge.name = this.$store.state.selectFridge.name//this.fridgeList[index];
+      this.getGoodsList(this.$store.state.selectFridge._id);
       this.pickerfridge = false;
     },
     submit(goods) {
@@ -187,34 +187,33 @@ export default {
       this.$http.put(`rest/goods/${model._id}`, model);
     },
     async fetch() {
-      await this.getfridgeList(this.userid);
-      if (this.fridge.id) {
-        await this.getGoodsList(this.fridge.id);
+      await this.getfridgeList(this.$store.state.userId);
+      if (this.$store.state.selectFridge._id) {
+        await this.getGoodsList(this.$store.state.selectFridge._id);
       }
     },
     getUserInfo() {
       const jwt = require("jsonwebtoken");
       if (localStorage.token) {
         const userInfo = jwt.decode(localStorage.token);
-        this.userName = userInfo.username;
-        this.userid = userInfo.id;
+        this.$store.commit('setUserInfo',{
+          userName:userInfo.username,
+          userId:userInfo.id
+        })
       } else {
         this.$router.push("/login");
       }
     },
     async getfridgeList(id) {
-      const res = await this.$http.post("getfridgelist/", { id: id });
-      if (res.data[0] == null) {
+      await    this.$store.dispatch('getFridgeList',id)
+      //const res = await this.$http.post("getfridgelist/", { id: id });
+      if (this.$store.state.FridgeList == null) {
         this.haveFridge = false;
       } else {
         this.haveFridge = true;
         this.fridgeList = [];
-        this.fridgeId = [];
-        this.fridge.id = res.data[0]._id;
-        this.fridge.name = res.data[0].name;
-        for (let item of res.data) {
+        for (let item of this.$store.state.FridgeList) {
           this.fridgeList.push(item.name);
-          this.fridgeId.push(item._id);
         }
       }
     },

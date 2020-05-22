@@ -21,6 +21,7 @@ import "vant/lib/icon/style";
 import "vant/lib/toast/style";
 import "vant/lib/popup/style";
 import "vant/lib/sticky/style";
+
 import AddFridge from "../components/AddFridge";
 
 import Vue from "vue";
@@ -32,7 +33,8 @@ import {
   CellGroup,
   Toast,
   Popup,
-  Sticky
+  Sticky,
+  Dialog
 } from "vant";
 
 Vue.use(NavBar);
@@ -69,25 +71,26 @@ export default {
       }
     },
     logout() {
-      localStorage.clear();
-      this.$router.push("/login");
-      this.$notify({
-        type: "success",
-        message: "注销成功"
+      Dialog.confirm({
+        title: "注销",
+        message: "是否确认注销"
+      }).then(() => {
+        localStorage.clear();
+        this.$store.commit("deleteUserInfo");
+        this.$router.push("/login");
+        this.$notify({
+          type: "success",
+          message: "注销成功"
+        });
       });
     },
     deletefridge() {}
   },
-  created() {
-    const jwt = require("jsonwebtoken");
-    if (localStorage.token) {
-      const userInfo = jwt.decode(localStorage.token);
-      this.userName = userInfo.username;
-      this.userID = userInfo.id;
-    } else {
-      this.$router.push("/login");
-    }
-  }
+  // created() {
+  //   if (this.$store.state.userName == "") {
+  //     this.$router.push("/login");
+  //   }
+  // }
 };
 </script>
 <style>

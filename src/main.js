@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import http from './http'
+import store from './store'
 
 import './assets/scss/style.scss'
 
@@ -29,5 +30,6 @@ Vue.mixin({
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
