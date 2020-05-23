@@ -93,9 +93,6 @@ Vue.use(DatetimePicker);
 
 export default {
   name: "AddGoods",
-  props: {
-    id: String
-  },
   data() {
     return {
       model: {
@@ -122,7 +119,7 @@ export default {
   // },
   methods: {
     onSubmit() {
-      this.model.owner = this.id;
+      this.model.owner = this.$store.state.selectFridge._id;
       this.model.exp = Math.floor(
         (this.model.outDate - this.model.inDate) / (24 * 3600 * 1000)
       );

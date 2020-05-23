@@ -23,7 +23,7 @@
           <template #input>
             <van-stepper v-model="stepper" />
           </template>
-        </van-field> -->
+        </van-field>-->
         <div style="margin: 16px;">
           <van-button round block type="info" native-type="submit">添加</van-button>
         </div>
@@ -67,27 +67,26 @@ Vue.use(CheckboxGroup);
 
 export default {
   name: "AddGoods",
-  props: {
-    userid: String
-  },
   data() {
     return {
       model: {
         name: "",
         owner: "",
-        fridgeFormation:[],
+        fridgeFormation: []
       },
       showTimePicker: false,
       value: "",
-      uploader: [],
-      
+      uploader: []
     };
   },
   methods: {
     onSubmit() {
-      this.model.owner = this.userid;
+      this.model.owner = this.$store.state.userId;
       this.$emit("submit", this.model);
     }
+  },
+  created() {
+    
   }
 };
 </script>

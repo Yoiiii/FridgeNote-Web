@@ -7,7 +7,8 @@
           name="用户名"
           label="用户名"
           placeholder="用户名"
-          :rules="[{ required: true, message: '请填写用户名' }]"
+          :rules="[{ required: true, message: '请填写用户名' },
+          { usernameRules ,message:'只能输入5-20个以字母开头的字符'}]"
         />
         <van-field
           v-model="model.password"
@@ -15,7 +16,9 @@
           name="密码"
           label="密码"
           placeholder="密码"
-          :rules="[{ required: true, message: '请填写密码' }]"
+          :rules="[
+          {passwordRules ,message:'只能输入6-20个字母、数字、下划线'},
+          { required: true, message: '请填写密码'  },]"
         />
         <div style="margin: 16px;">
           <van-button round block type="info" native-type="submit">登录</van-button>
@@ -53,6 +56,14 @@ export default {
         type: "success",
         message: "登陆成功"
       });
+    },
+    passwordRules(val) {
+      console.log('???');
+      
+      return /^(\w){6,20}$/.test(val);
+    },
+    usernameRules(val) {
+      return /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){4,19}$/.test(val);
     }
   }
 };

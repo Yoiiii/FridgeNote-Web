@@ -45,10 +45,11 @@
         </van-tab>
       </van-tabs>
       <van-popup v-model="pickerfridge" closeable position="bottom" :style="{ height: '30%' }">
-        <van-picker :columns="fridgeList" @change="onChange" />
+        <!-- <van-picker :columns="fridgeList" @change="onChange" /> -->
+        <selectFridge @change="onChange"></selectFridge>
       </van-popup>
       <van-popup v-model="addGoods" closeable position="bottom" :style="{ height: '70%' }">
-        <addgoods @submit="submit" :id="fridge.id"></addgoods>
+        <addgoods @submit="submit"></addgoods>
       </van-popup>
     </div>
     <div v-else class="d-flex flex-column">
@@ -60,7 +61,7 @@
       <van-button normal round plain type="info" native-type="submit" @click="addfridge=true">新建冰箱</van-button>
     </div>
     <van-popup v-model="addfridge" closeable position="bottom" :style="{ height: '30%' }">
-      <AddFridge :userid="userid" @submit="addFridge"></AddFridge>
+      <AddFridge @submit="addFridge"></AddFridge>
     </van-popup>
   </div>
 </template>
@@ -86,6 +87,8 @@ import Vue from "vue";
 import goods from "../components/Goods";
 import addgoods from "../components/AddGoods";
 import AddFridge from "../components/AddFridge";
+import selectFridge from "../components/SelectFridge"
+
 import {
   Empty,
   Tab,
@@ -130,8 +133,6 @@ export default {
   data() {
     return {
       active: 0,
-      userid: "",
-      userName: "",
       loading: false,
       finished: false,
       pickerfridge: false,
@@ -154,11 +155,21 @@ export default {
   components: {
     goods,
     addgoods,
-    AddFridge
+    AddFridge,
+    selectFridge,
+  },
+  async created() {
+    this.fetch();
   },
   methods: {
+    async fetch() {
+      await this.getfridgeList(this.$store.state.userId);
+      if (this.$store.state.selectFridge._id) {
+        await this.getGoodsList(this.$store.state.selectFridge._id);
+      }
+    },
     async onRefresh() {
-      await this.getGoodsList(this.fridge.id);
+      await this.getGoodsList(this.$store.state.selectFridge._id);
       this.isLoading = false;
     },
     onClickLeft() {
@@ -170,8 +181,8 @@ export default {
     onLoad() {
       this.finished = true;
     },
-    onChange(picker, value, index) {
-      this.$store.commit('changeFridge',index)
+    onChange(index) {
+      this.$store.commit("changeFridge", index);
       //this.fridge.id =this.$store.state.selectFridge._id// this.fridgeId[index];
       //this.fridge.name = this.$store.state.selectFridge.name//this.fridgeList[index];
       this.getGoodsList(this.$store.state.selectFridge._id);
@@ -186,28 +197,10 @@ export default {
     numChange(value, model) {
       this.$http.put(`rest/goods/${model._id}`, model);
     },
-    async fetch() {
-      await this.getfridgeList(this.$store.state.userId);
-      if (this.$store.state.selectFridge._id) {
-        await this.getGoodsList(this.$store.state.selectFridge._id);
-      }
-    },
-    getUserInfo() {
-      const jwt = require("jsonwebtoken");
-      if (localStorage.token) {
-        const userInfo = jwt.decode(localStorage.token);
-        this.$store.commit('setUserInfo',{
-          userName:userInfo.username,
-          userId:userInfo.id
-        })
-      } else {
-        this.$router.push("/login");
-      }
-    },
     async getfridgeList(id) {
-      await    this.$store.dispatch('getFridgeList',id)
+      await this.$store.dispatch("getFridgeList", id);
       //const res = await this.$http.post("getfridgelist/", { id: id });
-      if (this.$store.state.FridgeList == null) {
+      if (this.$store.state.FridgeList[0]._id == "") {
         this.haveFridge = false;
       } else {
         this.haveFridge = true;
@@ -243,7 +236,8 @@ export default {
               type: "success",
               message: "删除成功"
             });
-            this.fetch();
+            this.onRefresh();
+            //this.fetch();
           }
         })
         .catch(() => {
@@ -259,12 +253,9 @@ export default {
         });
         this.addfridge = false;
         this.fetch();
+        //this.onRefresh()
       }
     }
-  },
-  async created() {
-    await this.getUserInfo();
-    this.fetch();
   }
 };
 </script>

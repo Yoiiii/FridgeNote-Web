@@ -2,11 +2,11 @@
   <div id="Main">
     <router-view />
     <van-tabbar v-model="active" @change="onChange">
-        <van-tabbar-item  icon="orders-o">冰箱</van-tabbar-item>
+      <van-tabbar-item icon="orders-o">冰箱</van-tabbar-item>
       <!-- <van-tabbar-item icon="cart-o">
         <router-link to="/goodslist">物品</router-link>
       </van-tabbar-item>-->
-        <van-tabbar-item  icon="user-o">个人</van-tabbar-item>
+      <van-tabbar-item icon="user-o">个人</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -32,7 +32,7 @@ export default {
   name: "Main",
   data() {
     return {
-      active:0
+      active: 0
     };
   },
   methods: {
@@ -42,15 +42,27 @@ export default {
       } else if (this.active == 1) {
         this.$router.push("/personal");
       }
+    },
+    getUserInfo() {
+      const jwt = require("jsonwebtoken");
+      if (localStorage.token) {
+        const userInfo = jwt.decode(localStorage.token);
+        this.$store.commit("setUserInfo", {
+          userName: userInfo.username,
+          userId: userInfo.id
+        });
+      } else {
+        this.$router.push("/login");
+      }
     }
   },
-  created(){
-    if(this.$route.path==='/'){
-      this.active=0
-    }else {
-      this.active=1
+  created() {
+    this.getUserInfo()
+    if (this.$route.path === "/") {
+      this.active = 0;
+    } else {
+      this.active = 1;
     }
-
   }
 };
 </script>

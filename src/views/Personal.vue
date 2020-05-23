@@ -6,11 +6,14 @@
     <van-cell-group>
       <van-cell title="注销" @click="logout" />
       <van-cell title="新建冰箱" @click="addfridge = true" />
-      <van-cell title="删除冰箱" @click="deletefridge" />
+      <van-cell title="删除冰箱" @click="delfridge = true" />
       <van-cell title="关于" />
     </van-cell-group>
     <van-popup v-model="addfridge" closeable position="bottom" :style="{ height: '30%' }">
-      <AddFridge :userid="userID" @submit="addFridge"></AddFridge>
+      <AddFridge @submit="addFridge"></AddFridge>
+    </van-popup>
+    <van-popup v-model="delfridge" closeable position="bottom" :style="{ height: '40%' }">
+      <DelFridge @submit="deletefridge"></DelFridge>
     </van-popup>
   </div>
 </template>
@@ -23,6 +26,7 @@ import "vant/lib/popup/style";
 import "vant/lib/sticky/style";
 
 import AddFridge from "../components/AddFridge";
+import DelFridge from "../components/DelFridge";
 
 import Vue from "vue";
 import {
@@ -51,13 +55,15 @@ export default {
   data() {
     return {
       addfridge: false,
+      delfridge: false,
       userName: "",
       userID: "",
       model: {}
     };
   },
   components: {
-    AddFridge
+    AddFridge,
+    DelFridge
   },
   methods: {
     async addFridge(newFridge) {
@@ -84,13 +90,26 @@ export default {
         });
       });
     },
-    deletefridge() {}
+    deletefridge(result) {
+      Dialog.confirm({
+        title: "删除",
+        message: "是否确认删除"
+      }).then(async () => {
+        result.forEach(async item => {
+          await this.$http.delete(`rest/fridges/${item._id}`);
+        });
+        await this.$store.dispatch("getFridgeList", this.$store.state.userId);
+        this.delfridge=false
+        this.$notify({
+          type: "success",
+          message: "删除成功"
+        });
+      });
+    }
   },
-  // created() {
-  //   if (this.$store.state.userName == "") {
-  //     this.$router.push("/login");
-  //   }
-  // }
+  created() {
+    this.$store.dispatch("getFridgeList", this.$store.state.userId);
+  }
 };
 </script>
 <style>
