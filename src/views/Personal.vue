@@ -7,10 +7,14 @@
       <van-cell title="注销" @click="logout" />
       <van-cell title="新建冰箱" @click="addfridge = true" />
       <van-cell title="删除冰箱" @click="delfridge = true" />
+      <van-cell title="修改密码" @click="changepassword = true" />
       <van-cell title="关于" />
     </van-cell-group>
     <van-popup v-model="addfridge" closeable position="bottom" :style="{ height: '30%' }">
       <AddFridge @submit="addFridge"></AddFridge>
+    </van-popup>
+    <van-popup v-model="changepassword" closeable position="bottom" :style="{ height: '50%' }">
+      <ChangePassword @submit="changePassword"></ChangePassword>
     </van-popup>
     <van-popup v-model="delfridge" closeable position="bottom" :style="{ height: '40%' }">
       <DelFridge @submit="deletefridge"></DelFridge>
@@ -27,6 +31,7 @@ import "vant/lib/sticky/style";
 
 import AddFridge from "../components/AddFridge";
 import DelFridge from "../components/DelFridge";
+import ChangePassword from "../components/ChangePassword";
 
 import Vue from "vue";
 import {
@@ -56,6 +61,7 @@ export default {
     return {
       addfridge: false,
       delfridge: false,
+      changepassword: false,
       userName: "",
       userID: "",
       model: {}
@@ -63,7 +69,8 @@ export default {
   },
   components: {
     AddFridge,
-    DelFridge
+    DelFridge,
+    ChangePassword
   },
   methods: {
     async addFridge(newFridge) {
@@ -99,14 +106,33 @@ export default {
           await this.$http.delete(`rest/fridges/${item._id}`);
         });
         await this.$store.dispatch("getFridgeList", this.$store.state.userId);
-        this.delfridge=false
+        this.delfridge = false;
         this.$notify({
           type: "success",
           message: "删除成功"
         });
       });
+    },
+    async changePassword(model) {
+      const res = await this.$http.post("changepassword/", model);
+      console.log(res.data);
+      if (res.data) {
+        this.changepassword = false;
+        localStorage.clear();
+        this.$store.commit("deleteUserInfo");
+        this.$router.push("/login");
+        this.$notify({
+          type: "success",
+          message: "修改密码成功"
+        });
+        // this.$notify({
+        //   type: "success",
+        //   message: "注销成功"
+        // });
+      }
     }
   },
+  ///fridge/api/changepassword
   created() {
     this.$store.dispatch("getFridgeList", this.$store.state.userId);
   }
