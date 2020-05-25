@@ -30,7 +30,7 @@ const store = new Vuex.Store({
   actions: {
     async getFridgeList(context, payload) {
       const res = await Vue.prototype.$http.post("getfridgelist/", { id: payload });
-      console.log(res);
+      //console.log(res);
       if (res.data.length != 0) {
         context.commit('setFridgeList', res.data)
         context.commit('changeFridge', 0)
