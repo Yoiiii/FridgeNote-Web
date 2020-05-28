@@ -5,13 +5,15 @@ import http from './http'
 import store from './store'
 
 import './assets/scss/style.scss'
-
+import FastClick from 'fastclick'
 import { Notify } from 'vant';
 
 Vue.use(Notify);
 Vue.config.productionTip = false
 Vue.prototype.$http=http
 Vue.prototype.$Notify=Notify
+//解决移动端300ms 延迟
+FastClick.attach(document.body)
 
 Vue.mixin({
   computed: {
