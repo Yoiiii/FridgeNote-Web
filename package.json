@@ -12,7 +12,7 @@
     "bcrypt": "^4.0.1",
     "core-js": "^3.6.4",
     "fastclick": "^1.0.6",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "vant": "^2.6.3",
     "vue": "^2.6.11",
     "vue-router": "^3.1.6",
